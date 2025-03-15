@@ -1,67 +1,78 @@
-let numeroSecreto = 0;
-let intentos = 0;
-let listaNumerosSorteados = [];
-let numeroMaximo = 10;
+let secretNumber = 0;
+let attempts = 0;
+let raffledNumberList = [];
+let maxAttempts = 10;
 
-function asignarTextoElemento (elemento, texto) {
-    let elementoHTML = document.querySelector(elemento);
-    elementoHTML.innerHTML = texto;
-    return;
+document.getElementById("user__value").onkeyup = function (event) {
+  if (event.key === "Enter") {
+    checkAttempts();
+  }
+};
+
+function assignTextElement(element, text) {
+  let elementHTML = document.querySelector(element);
+  elementHTML.innerHTML = text;
+  return;
 }
 
-function verificarIntento() {
-    let numeroDeUsuario = parseInt(document.getElementById('valorUsuario').value);
+function checkAttempts() {
+  let userNumber = parseInt(document.getElementById("user__value").value);
 
-    if (numeroDeUsuario === numeroSecreto) {
-        asignarTextoElemento ('p', `¡Genial, acertaste en ${intentos} ${(intentos === 1 ? 'intento' : 'intentos')}. El numéro secreto era ${numeroSecreto}!`);
-        document.getElementById('reiniciar').removeAttribute('disabled');
-        document.querySelector('#intentar').setAttribute('disabled', true);
+  if (userNumber === secretNumber) {
+    assignTextElement(
+      "p",
+      `¡Genial, acertaste en ${attempts} ${
+        attempts === 1 ? "intento" : "intentos"
+      }. El numéro secreto era ${secretNumber}!`
+    );
+    assignTextElement(".text__attempts", `Intentos: ${attempts}`);
+    document.getElementById("reset__button").removeAttribute("disabled");
+    document.querySelector("#try__button").setAttribute("disabled", true);
+  } else {
+    if (userNumber > secretNumber) {
+      assignTextElement("p", "El número secreto es menor");
     } else {
-        if (numeroDeUsuario > numeroSecreto) {
-            asignarTextoElemento ('p', 'El número secreto es menor');
-        } else {
-            asignarTextoElemento ('p', 'El número secreto es mayor');
-        }
-        intentos++
-        limpiarCaja();
+      assignTextElement("p", "El número secreto es mayor");
     }
-    return;
+    assignTextElement(".text__attempts", `Intentos: ${attempts}`);
+    attempts++;
+    clearValue();
+  }
+  return;
 }
 
-function limpiarCaja () {
-    document.querySelector('#valorUsuario').value = '';
+function clearValue() {
+  document.querySelector("#user__value").value = "";
 }
 
-function generarNumeroSecreto() {
-    let numeroGenerado =  Math.floor(Math.random()*numeroMaximo)+1;
+function generateSecretNumber() {
+  let randomNumber = Math.floor(Math.random() * maxAttempts) + 1;
 
-    console.log(numeroGenerado);
-    console.log(listaNumerosSorteados);
-    if (listaNumerosSorteados.length == numeroMaximo) {
-        asignarTextoElemento('p', 'Ya se sortearon todos los números posibles');
+  if (raffledNumberList.length == maxAttempts) {
+    assignTextElement("p", "Ya se sortearon todos los números posibles");
+  } else {
+    if (raffledNumberList.includes(randomNumber)) {
+      return generateSecretNumber();
     } else {
-        if (listaNumerosSorteados.includes(numeroGenerado)) {
-            return generarNumeroSecreto();
-        } else {
-            listaNumerosSorteados.push(numeroGenerado);
-            return numeroGenerado;
-        }
+      raffledNumberList.push(randomNumber);
+      return randomNumber;
     }
+  }
 }
 
-function condicionesIniciales () {
-    asignarTextoElemento ('h1', 'Juego del número secreto');
-    asignarTextoElemento ('p', `Indica un número del 1 al ${numeroMaximo}`);
-    numeroSecreto = generarNumeroSecreto();
-    intentos = 1;
-    console.log(numeroSecreto);
+function initialState() {
+  assignTextElement("h1", "Juego del número secreto");
+  assignTextElement("p", `Indica un número del 1 al ${maxAttempts}`);
+  assignTextElement(".text__attempts", "Intentos: 0");
+  secretNumber = generateSecretNumber();
+  attempts = 1;
 }
 
-function reiniciarJuego () {
-    limpiarCaja();
-    condicionesIniciales();
-    document.querySelector('#reiniciar').setAttribute('disabled', true);
-    document.getElementById('intentar').removeAttribute('disabled');
+function resetGame() {
+  clearValue();
+  initialState();
+  document.querySelector("#reset__button").setAttribute("disabled", true);
+  document.getElementById("try__button").removeAttribute("disabled");
 }
 
-condicionesIniciales();
+initialState();
